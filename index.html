@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Search Stones</title>
+<title>Search</title>
 <style>
   :root{--bg:#0b1020;--card:#151c33;--text:#f2f4fa;--muted:#9aa4c0;--gold:#f5c542;--btn:#2563eb;--btn2:#7c3aed}
   *{box-sizing:border-box}
@@ -21,7 +21,7 @@
 </head>
 <body>
 <div class="card">
-  <div class="brand">&#9670; Search Stone</div>
+  <div class="brand">&#9670; search</div>
   <div class="id" id="sid">Stone</div>
   <div class="sub" id="scert"></div>
   <a class="btn hide" id="gia" target="_blank" rel="noopener">GIA Report</a>
@@ -32,15 +32,18 @@
 
 <script>
 /* QR link format:
-   ?l=GIA&c=2566456587&v=73790/CP47-4&id=CP29-1G
-   l = lab (GIA / IGI / HRD)   c = certificate no   v = video (short or full link)   id = stone id (optional) */
+   ?l=G&c=2566456587&v=73790/CP29-1G        (id taken from the video link)
+   ?l=I&c=815638830&id=CP36-305             (no video)
+   l = lab (G=GIA, I=IGI, H=HRD; full names also work)   c = certificate no   v = video (short or full link)   id = stone id (optional) */
 var VIDEO_BASE = 'https://video.diamonds360.in/360D/';
 
 var q = new URLSearchParams(location.search);
 var id   = (q.get('id') || '').trim();
 var lab  = (q.get('l')  || 'GIA').trim().toUpperCase();
+if (lab === 'G') lab = 'GIA'; else if (lab === 'I') lab = 'IGI'; else if (lab === 'H') lab = 'HRD';
 var cert = (q.get('c')  || '').replace(/[^A-Za-z0-9]/g, '');
 var vraw = (q.get('v')  || '').trim();
+if (!id && vraw) id = vraw.split('/').pop().trim();   // stone id = last part of the video link
 
 function safeUrl(u){
   try{ var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; }
