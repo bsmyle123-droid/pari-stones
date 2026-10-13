@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search</title>
+<style>
+  :root{--bg:#0b1020;--card:#151c33;--text:#f2f4fa;--muted:#9aa4c0;--gold:#f5c542;--btn:#2563eb;--btn2:#7c3aed}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:20px}
+  .card{width:100%;max-width:420px;background:var(--card);border-radius:18px;padding:28px 22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+  .brand{color:var(--gold);font-weight:800;letter-spacing:1px;font-size:1.3rem}
+  .id{margin:14px 0 4px;font-size:1.6rem;font-weight:700}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:22px;word-break:break-all}
+  a.btn{display:block;margin:12px 0;padding:16px;border-radius:12px;color:#fff;text-decoration:none;font-size:1.05rem;font-weight:700;background:var(--btn)}
+  a.btn.v{background:var(--btn2)}
+  .msg{color:var(--muted);font-size:.9rem;margin-top:16px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">&#9670; Search</div>
+  <div class="id" id="sid">Stone</div>
+  <div class="sub" id="scert"></div>
+  <a class="btn hide" id="gia" target="_blank" rel="noopener">GIA Report</a>
+  <a class="btn v hide" id="vid" target="_blank" rel="noopener">Video / Details</a>
+  <div class="msg hide" id="msg"></div>
+</div>
+
+<script>
+/* QR link format:
+   ?l=GIA&c=2566456587&v=73790/CP47-4&id=CP29-1G
+   l = lab (GIA / IGI / HRD)   c = certificate no   v = video (short or full link)   id = stone id (optional) */
+var VIDEO_BASE = 'https://video.diamonds360.in/360D/';
+
+var q = new URLSearchParams(location.search);
+var id   = (q.get('id') || '').trim();
+var lab  = (q.get('l')  || 'GIA').trim().toUpperCase();
+var cert = (q.get('c')  || '').replace(/[^A-Za-z0-9]/g, '');
+var vraw = (q.get('v')  || '').trim();
+
+function safeUrl(u){
+  try{ var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : ''; }
+  catch(e){ return ''; }
+}
+function show(el, href){ el.href = href; el.classList.remove('hide'); }
+
+document.getElementById('sid').textContent = id || 'Stone';
+if (cert) document.getElementById('scert').textContent = lab + ' Certificate No: ' + cert;
+
+var giaEl = document.getElementById('gia');
+if (cert){
+  var e = encodeURIComponent(cert), u = '';
+  if (lab.indexOf('GIA') > -1) u = 'https://www.gia.edu/report-check?reportno=' + e;
+  else if (lab.indexOf('IGI') > -1) u = 'https://www.igi.org/verify-your-report/?r=' + e;
+  else if (lab.indexOf('HRD') > -1) u = 'https://my.hrdantwerp.com/?id=34&record_number=' + e;
+  if (u){ giaEl.textContent = lab + ' Report'; show(giaEl, u); }
+}
+
+var vEl = document.getElementById('vid');
+if (vraw){
+  var full = /^https?:\/\//i.test(vraw) ? vraw : VIDEO_BASE + vraw.replace(/^\/+/, '');
+  var vu = safeUrl(full);
+  if (vu) show(vEl, vu);
+}
+
+if (giaEl.classList.contains('hide') && vEl.classList.contains('hide')){
+  var m = document.getElementById('msg');
+  m.textContent = 'No details found for this stone.';
+  m.classList.remove('hide');
+}
+</script>
+</body>
+</html>
